@@ -5,7 +5,8 @@
 
 #attemt to discover Hermes / Openhpsdr boards using protocol v1
 
-import socket
+import socket,metis
+
 
 BCAST="255.255.255.255"
 DEST_PORT=1024
@@ -23,7 +24,7 @@ sock.settimeout(1)
 while True:
   try:
     data,addr = sock.recvfrom(1024)
-    print "from",addr,":",data
+    metis.decode_hwtopc(data,addr)
   except Exception as e:
     print "error ->",e
     break
