@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #this program emulates a hpsdr board
 
 import socket, errno

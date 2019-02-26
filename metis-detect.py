@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #this program discovers all hermes/hermes lite boards on the local net
 #https://wiki.python.org/moin/UdpCommunication
 #https://docs.python.org/2/library/socket.html
@@ -20,7 +20,7 @@ sock.bind(('',0))
 print("send discovery")
 sock.sendto(DISC, (BCAST, DEST_PORT))
 
-sock.settimeout(1)
+sock.settimeout(100)
 while True:
   try:
     data,addr = sock.recvfrom(1024)
