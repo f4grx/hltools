@@ -16,6 +16,47 @@ struct p1dev_discover_sync_s
     int             index;
   };
 
+static const char * gBoardTypes[] =
+  {
+    "METIS",
+    "HERMES",
+    "GRIFFIN",
+    "(Undefined)",
+    "ANGELIA",
+    "ORION",
+    "HERMESLITE"
+  };
+
+static const char * gBoardStates[] =
+  {
+    "DISCONNECTED",
+    "CONNECTED",
+    "STREAMINGNARROW",
+    "STREAMINGWIDE",
+    "TRANSMIT",
+    "FULLDUPLEX"
+  };
+
+/*----------------------------------------------------------------------------*/
+const char *p1dev_describe_type(uint8_t type)
+  {
+    if(type < sizeof(gBoardTypes))
+      {
+        return gBoardTypes[type];
+      }
+    return "(Unknown)";
+  }
+
+/*----------------------------------------------------------------------------*/
+const char *p1dev_describe_state(uint8_t state)
+  {
+    if(state < sizeof(gBoardStates))
+      {
+        return gBoardStates[state];
+      }
+    return "(Unknown)";
+  }
+
 /*----------------------------------------------------------------------------*/
 /* Discover protocol 1 devices asynchronously. The callback is triggered
  * each time a device is discovered. Discovery will run for delay seconds.
@@ -28,10 +69,11 @@ int p1dev_discover_async(p1dev_cb_f callback, void *context, int delay)
     struct sockaddr_in sender;
     int                sender_len;
     struct timespec    rcv_timeout;
-    char               disc[63] = {0xEF, 0xFE, 0x02};
-    char               buf[256];
+    uint8_t            disc[63] = {0xEF, 0xFE, 0x02};
+    uint8_t            buf[256];
     int                i_true = 1;
     int                ret;
+    struct p1dev_s     dev;
 
     /* Create an UDP socket */
 
@@ -76,7 +118,7 @@ int p1dev_discover_async(p1dev_cb_f callback, void *context, int delay)
     /* Send broadcast discovery packet */
 
     remote.sin_family      = AF_INET;
-    remote.sin_port        = 1024;
+    remote.sin_port        = htons(1024);
     remote.sin_addr.s_addr = INADDR_BROADCAST;
 
     if(sendto(sock, disc, sizeof(disc), 0,
@@ -94,17 +136,32 @@ int p1dev_discover_async(p1dev_cb_f callback, void *context, int delay)
                        (struct sockaddr*)&sender, &sender_len);
         if(ret > 0)
           {
-            fprintf(stderr, "positive ret=%d\n", ret);
+            if(ret != 60)
+              {
+                fprintf(stderr, "reply with unexpected len of %d bytes\n", ret);
+                continue;
+              }
+            if(buf[0] != 0xEF || buf[1] != 0xFE)
+              {
+                fprintf(stderr, "reply with bad header %02X %02X\n", buf[0]&0xFF, buf[1]&0xFF);
+                continue;
+              }
+            memcpy(dev.mac, buf + 3, 6);
+            dev.version = buf[9];
+            dev.type    = buf[10];
+            dev.state   = P1DEV_STATE_DISCONNECTED;
+            dev.ip      = sender.sin_addr;
+            callback(&dev, context);
           }
         else if(ret == 0)
           {
-            fprintf(stderr, "zero ret\n");
+            fprintf(stderr, "zero ret, unexpected, please contact f4grx@f4grx.net\n");
           }
         else
           {
             if(errno == EAGAIN)
               {
-                fprintf(stderr, "Time has elapsed.\n");
+                //fprintf(stderr, "Time has elapsed.\n");
                 break;
               }
             fprintf(stderr, "negative ret = %d, errno=%d\n", ret, errno);

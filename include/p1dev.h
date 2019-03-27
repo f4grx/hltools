@@ -19,6 +19,7 @@ enum
     P1DEV_TYPE_METIS,
     P1DEV_TYPE_HERMES,
     P1DEV_TYPE_GRIFFIN,
+    P1DEV_TYPE_UNDEFINED,
     P1DEV_TYPE_ANGELIA,
     P1DEV_TYPE_ORION,
     P1DEV_TYPE_HERMESLITE
@@ -57,6 +58,10 @@ int p1dev_discover(struct p1dev_s *devtable, int maxdevs, int delay);
 
 /* Initialize a protocol 1 device from an explicit IP*/
 int p1dev_fromip(struct p1dev_s *device, struct in_addr ip);
+
+/* Return string values for some enumerations */
+const char *p1dev_describe_type(uint8_t type);
+const char *p1dev_describe_state(uint8_t type);
 
 /* Open the connection to a protocol 1 device */
 int p1dev_connect(struct p1dev_s *device);
