@@ -14,20 +14,35 @@ enum
     P1DEV_STATE_FULLDUPLEX
   };
 
+enum
+  {
+    P1DEV_TYPE_METIS,
+    P1DEV_TYPE_HERMES,
+    P1DEV_TYPE_GRIFFIN,
+    P1DEV_TYPE_ANGELIA,
+    P1DEV_TYPE_ORION,
+    P1DEV_TYPE_HERMESLITE
+  };
+
 /* protocol 1 device management */
 
 struct p1dev_s
   {
-    struct in_addr ip;     /* IP address of the board */
-    uint8_t        mac[6]; /* MAC address of the board */
-    int            type;   /* Device type */
-    int            state;  /* Device state: stopped, started narrow, started wide */
-    int            sock;   /* socket handle used for communication */
+    struct in_addr ip;      /* IP address of the board */
+    uint8_t        mac[6];  /* MAC address of the board */
+    int            type;    /* Device type */
+    uint8_t        version; /* FPGA gateware version */
+    int            state;   /* Device state: stopped, started narrow, started wide */
+    int            sock;    /* socket handle used for communication */
   };
 
 /* This callback is called by the async version of the discovery process.
  */
 typedef void (*p1dev_cb_f)(struct p1dev_s *device, void *context);
+typedef void (*p1dev_narrow_cb_f)(struct p1dev_s *device, void *context,
+                                  void *buffer1024);
+typedef void (*p1dev_wide_cb_f)(struct p1dev_s *device, void *context,
+                                void *buffer16384);
 
 /* Discover protocol 1 devices asynchronously. The callback is triggered
  * each time a device is discovered. Discovery will run for delay seconds.
@@ -49,5 +64,27 @@ int p1dev_connect(struct p1dev_s *device);
 /* Release connection to a protocol 1 device */
 int p1dev_disconnect(struct p1dev_s *device);
 
+/* Start receiving IQ samples from the narrow band receiver.
+ * Samples will be stored in the buffer, that must be provided
+ * by the caller.
+ */
+int p1dev_start_narrow(struct p1dev_s *device, void *buffer1024,
+                       p1dev_narrow_cb_f *rxcallback);
+
+/* Stop receiving narrow band data */
+int p1dev_stop_narrow(struct p1dev_s *device);
+
+/* Transmit some IQ samples */
+int p1dev_send_narrow(struct p1dev_s *device, void *buffer1024);
+
+/* Start receiving bandscope data. Data is stored in the buffer
+ * that must be allocated by the caller. The RX callback is only
+ * called when a full set of bandscope data has been received.
+ */
+int p1dev_start_wide(struct p1dev_s *device, void *buffer16384,
+                     p1dev_wide_cb_f *rxcallback);
+
+/* Stop receiving bandscope data */
+int p1dev_stop_wide(struct p1dev_s *device);
 
 #endif /* __P1DEV__H__ */
