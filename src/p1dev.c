@@ -173,7 +173,14 @@ int p1dev_fromip(struct p1dev_s *device, struct in_addr ip)
 int p1dev_connect(struct p1dev_s *device)
   {
     int sock;
+
     fprintf(stderr, "Connect to p1dev at %s\n", inet_ntoa(device->ip));
+
+    if(device->state != P1DEV_STATE_DISCONNECTED)
+      {
+        fprintf(stderr, "Device is already connected!\n");
+        return -1;
+      }
 
     sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if(sock < 0)
@@ -182,7 +189,7 @@ int p1dev_connect(struct p1dev_s *device)
         return -1;
       }
 
-    device->sock = sock;
+    device->sock  = sock;
     device->state = P1DEV_STATE_CONNECTED;
     return 0;
   }
@@ -192,6 +199,13 @@ int p1dev_connect(struct p1dev_s *device)
 int p1dev_disconnect(struct p1dev_s *device)
   {
     fprintf(stderr, "Disconnect from p1dev at %s\n", inet_ntoa(device->ip));
+
+    if(device->state == P1DEV_STATE_DISCONNECTED)
+      {
+        fprintf(stderr, "Device is already connected!\n");
+        return -1;
+      }
+
     if(close(device->sock) < 0)
       {
         perror("Disconnecting from p1dev");
