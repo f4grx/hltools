@@ -102,6 +102,11 @@ int p1dev_discover_async(p1dev_cb_f callback, void *context, int delay)
           }
         else
           {
+            if(errno == EAGAIN)
+              {
+                fprintf(stderr, "Time has elapsed.\n");
+                break;
+              }
             fprintf(stderr, "negative ret = %d, errno=%d\n", ret, errno);
           }
       }
