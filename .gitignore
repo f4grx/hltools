@@ -1,1 +1,10 @@
 *.o
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+src/CMakeFiles/
+src/Makefile
+src/cmake_install.cmake
+src/hpsdr_enum
+src/libnewhpsdr.a
