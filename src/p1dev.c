@@ -1,3 +1,21 @@
+/*
+ * newhpsdr - an implementation of the hpsdr protocol
+ * Copyright (C) 2019 Sebastien Lorquet
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -74,6 +92,13 @@ int p1dev_discover_async(p1dev_cb_f callback, void *context, int delay)
     int                i_true = 1;
     int                ret;
     struct p1dev_s     dev;
+
+    /* Validate parameters */
+
+    if(callback == NULL || delay == 0)
+      {
+        return -1;
+      }
 
     /* Create an UDP socket */
 
@@ -204,6 +229,8 @@ int p1dev_discover(struct p1dev_s *devtable, int maxdevs, int delay)
     struct p1dev_discover_sync_s context;
     int ret;
 
+    /* Validate parameters */
+
     if(devtable == NULL || maxdevs == 0 || delay == 0)
       {
         return -1;
@@ -228,6 +255,7 @@ int p1dev_fromip(struct p1dev_s *device, struct in_addr ip)
   {
     device->ip = ip;
     device->state = P1DEV_STATE_DISCONNECTED;
+    return 0;
   }
 
 /*----------------------------------------------------------------------------*/
@@ -274,6 +302,49 @@ int p1dev_disconnect(struct p1dev_s *device)
         return -1;
       }
     device->state = P1DEV_STATE_DISCONNECTED;
+    return 0;
+  }
+
+/*----------------------------------------------------------------------------*/
+/* Start receiving IQ samples from the narrow band receiver.
+ * Samples will be stored in the buffer, that must be provided
+ * by the caller.
+ */
+int p1dev_start_narrow(struct p1dev_s *device, void *buffer1024,
+                       p1dev_narrow_cb_f *rxcallback)
+  {
+    return 0;
+  }
+
+/*----------------------------------------------------------------------------*/
+/* Stop receiving narrow band data */
+int p1dev_stop_narrow(struct p1dev_s *device)
+  {
+    return 0;
+  }
+
+/*----------------------------------------------------------------------------*/
+/* Transmit some IQ samples */
+int p1dev_send_narrow(struct p1dev_s *device, void *buffer1024)
+  {
+    return 0;
+  }
+
+/*----------------------------------------------------------------------------*/
+/* Start receiving bandscope data. Data is stored in the buffer
+ * that must be allocated by the caller. The RX callback is only
+ * called when a full set of bandscope data has been received.
+ */
+int p1dev_start_wide(struct p1dev_s *device, void *buffer16384,
+                     p1dev_wide_cb_f *rxcallback)
+  {
+    return 0;
+  }
+
+/*----------------------------------------------------------------------------*/
+/* Stop receiving bandscope data */
+int p1dev_stop_wide(struct p1dev_s *device)
+  {
     return 0;
   }
 
