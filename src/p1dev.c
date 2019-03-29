@@ -79,7 +79,7 @@ const char *p1dev_describe_state(uint8_t state)
 /* Discover protocol 1 devices asynchronously. The callback is triggered
  * each time a device is discovered. Discovery will run for delay seconds.
  */
-int p1dev_discover_async(p1dev_cb_f callback, void *context, int delay)
+int p1dev_discover_async(p1dev_cb_f callback, void *context, unsigned int delay)
   {
     int                sock;
     struct sockaddr_in local;
@@ -224,7 +224,7 @@ static void p1dev_discover_sync_cb(struct p1dev_s *dev, void *context)
  * at most maxdevs devices are discovered.
  * Discovery is run for delay seconds.
  */
-int p1dev_discover(struct p1dev_s *devtable, int maxdevs, int delay)
+int p1dev_discover(struct p1dev_s *devtable, int maxdevs, unsigned int delay)
   {
     struct p1dev_discover_sync_s context;
     int ret;

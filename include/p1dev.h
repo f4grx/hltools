@@ -66,13 +66,14 @@ typedef void (*p1dev_wide_cb_f)(struct p1dev_s *device, void *context,
 /* Discover protocol 1 devices asynchronously. The callback is triggered
  * each time a device is discovered. Discovery will run for delay seconds.
  */
-int p1dev_discover_async(p1dev_cb_f callback, void *context, int delay);
+int p1dev_discover_async(p1dev_cb_f callback, void *context,
+                         unsigned int delay);
 
 /* Discover protocol 1 devices and store their info in the devtable.
  * at most maxdevs devices are discovered.
  * Discovery is run for delay seconds.
  */
-int p1dev_discover(struct p1dev_s *devtable, int maxdevs, int delay);
+int p1dev_discover(struct p1dev_s *devtable, int maxdevs, unsigned int delay);
 
 /* Initialize a protocol 1 device from an explicit IP*/
 int p1dev_fromip(struct p1dev_s *device, struct in_addr ip);

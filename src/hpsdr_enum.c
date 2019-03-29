@@ -16,7 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <arpa/inet.h>
 #include "p1dev.h"
 
@@ -32,11 +34,33 @@ void enumerator(struct p1dev_s *dev, void *ctx)
 
 int main(int argc, char **argv)
   {
-    int delay = 3;
+    unsigned int delay = 3;
+
+    if(argc==2)
+      {
+        if(!strcmp(argv[1],"-h") || !strcmp(argv[1],"--help"))
+          {
+            printf("hpsdr_enum\n"
+                   "  -h --help    Show this help\n"
+                   "  <delay>      Enumeration timeout in seconds, min 1, max 100, default 3\n");
+            return 0;
+          }
+        delay = strtol(argv[1], NULL, 10);
+        if(delay == 0)
+          {
+            fprintf(stderr, "Incorrect number\n");
+            return 1;
+          }
+        if(delay > 100)
+          {
+            fprintf(stderr, "Incorrect delay\n");
+            return 1;
+          }
+      }
 
     printf("hpsdr_enum - (c) 2019 by f4grx, all rights reserved\n");
 
-    printf("Start of enumeration, timeout = %d s\n", delay);
+    printf("Start of enumeration, timeout = %u s\n", delay);
     
     p1dev_discover_async(enumerator, NULL, delay);
 

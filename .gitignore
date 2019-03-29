@@ -1,4 +1,3 @@
-*.o
 CMakeCache.txt
 CMakeFiles/
 Makefile
